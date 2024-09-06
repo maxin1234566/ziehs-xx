@@ -8,102 +8,53 @@
     </div>
     <div v-if="!showCompany" class="login">
       <a-form @submit="onSubmit" :form="form">
-        <a-tabs
-          size="large"
-          :tabBarStyle="{ textAlign: 'center' }"
-          style="padding: 0 2px"
-        >
+        <a-tabs size="large" :tabBarStyle="{ textAlign: 'center' }" style="padding: 0 2px">
           <!-- <a-tab-pane tab="账户密码登录" key="1">   请输入账户名 -->
           <a-tab-pane tab="工号密码登录" key="1">
-            <a-alert
-              type="error"
-              :closable="true"
-              v-show="error"
-              :message="error"
-              showIcon
-              style="margin-bottom: 24px"
-            />
+            <a-alert type="error" :closable="true" v-show="error" :message="error" showIcon
+              style="margin-bottom: 24px" />
             <a-form-item>
-              <a-input
-                autocomplete="autocomplete"
-                size="large"
-                placeholder="请输入工号"
-                v-decorator="[
-                  'name',
-                  {
-                    rules: [
-                      {
-                        required: true,
-                        message: '请输入工号',
-                        whitespace: true,
-                      },
-                    ],
-                    initialValue: windowLocal < 0 ? '' : '15046842680',
-                    // initialValue: '13801010103',
-                  },
-                ]"
-              >
+              <a-input autocomplete="autocomplete" size="large" placeholder="请输入工号" v-decorator="[
+      'name',
+      {
+        rules: [
+          {
+            required: true,
+            message: '请输入工号',
+            whitespace: true,
+          },
+        ],
+        initialValue: windowLocal < 0 ? '' : '15046842680',
+        // initialValue: '13801010103',
+      },
+    ]">
                 <a-icon slot="prefix" type="user" />
               </a-input>
             </a-form-item>
             <a-form-item>
               <!-- type="password" -->
-              <a-input-password
-                size="large"
-                placeholder="请输入密码"
-                autocomplete="autocomplete"
-                v-decorator="[
-                  'password',
-                  {
-                    rules: [
-                      {
-                        required: true,
-                        message: '请输入密码',
-                        whitespace: true,
-                      },
-                    ],
-                    initialValue: windowLocal < 0 ? '' : 'Aa123456',
-                    // initialValue: 'a123456',
-                  },
-                ]"
-              >
+              <a-input-password size="large" placeholder="请输入密码" autocomplete="autocomplete" v-decorator="[
+      'password',
+      {
+        rules: [
+          {
+            required: true,
+            message: '请输入密码',
+            whitespace: true,
+          },
+        ],
+        initialValue: windowLocal < 0 ? '' : 'Aa123456',
+        // initialValue: 'a123456',
+      },
+    ]">
                 <a-icon slot="prefix" type="lock" />
               </a-input-password>
             </a-form-item>
           </a-tab-pane>
-          <!-- <a-tab-pane tab="手机号登录" key="2">
-            <a-form-item>
-              <a-input size="large" placeholder="mobile number">
-                <a-icon slot="prefix" type="mobile" />
-              </a-input>
-            </a-form-item>
-            <a-form-item>
-              <a-row :gutter="8" style="margin: 0 -4px">
-                <a-col :span="16">
-                  <a-input size="large" placeholder="captcha">
-                    <a-icon slot="prefix" type="mail" />
-                  </a-input>
-                </a-col>
-                <a-col :span="8" style="padding-left: 4px">
-                  <a-button style="width: 100%" class="captcha-button" size="large">获取验证码</a-button>
-                </a-col>
-              </a-row>
-            </a-form-item>
-          </a-tab-pane> -->
         </a-tabs>
-        <!-- <div>
-          <a style="float: left">忘记密码</a>
-          <router-link style="float: right" to="/dashboard/workplace">注册账户</router-link>
-        </div> -->
         <a-form-item>
-          <a-button
-            :loading="logging"
-            style="width: 100%; margin-top: 24px"
-            size="large"
-            htmlType="submit"
-            type="primary"
-            >登录</a-button
-          >
+          <a-button :loading="logging" style="width: 100%; margin-top: 24px" size="large" htmlType="submit"
+            type="primary">登录</a-button>
         </a-form-item>
       </a-form>
     </div>
@@ -112,11 +63,9 @@
 
 <script>
 import CommonLayout from "@/layouts/CommonLayout";
-import { loadRoutes } from "@/utils/routerUtil";
 import { mapMutations, mapActions } from "vuex";
-import { getDevToken, getDevCompany } from "@/services/api";
-import { getPublicKey, loginIn, getDevMessageBOE } from "@/services/login";
 import JSEncrypt from "jsencrypt";
+import { getPublicKey,loginIn,userGetUserInfo } from "@/services/xinxin/login.js"
 import {
   getMenuAuthList,
   getloginUserDataAuth,
@@ -161,7 +110,6 @@ export default {
       let queryParams = getQueryParams(location.href);
       // 如果存在userKey是从门户跳转过来的
       if (queryParams.userKey) {
-        console.log(3333333333333)
         this.showCompany = true;
         let params = {
           userKey: queryParams.userKey,
@@ -188,7 +136,6 @@ export default {
         }
         this.getUserMessage(queryParams.routeUrl + "?" + str);
       } else {
-         console.log(444444 )
         this.getPublicKey();
       }
     },
@@ -232,9 +179,6 @@ export default {
           // 存储跳转系统页的相关信息
           sessionStorage.setItem("access_token", result.data.accessToken);
           sessionStorage.setItem("token_type", result.data.tokenType);
-          // sessionStorage.setItem('userId', result.data.expireIn);
-          // 查询系统list
-          // this.getCompanyList();
           this.getUserMessage();
         }
         this.logging = false;
@@ -259,19 +203,17 @@ export default {
     },
     // 开发内部控制台页面，暂时保留
     async getRoutesConfig(loginRes) {
-      // let res = await getRoutesConfig();
       const routesConfig = res.data.data;
-      // loadRoutes(routesConfig)
-      this.$router.push({ path: "/dashboard/workplace" }, () => {});
-      // this.$router.push('/dashboard/workplace')
+      this.$router.push({ path: "/dashboard/workplace" }, () => { });
       this.$antMessage.success(loginRes.message, 3);
     },
     async getUserMessage(url) {
       let userId = sessionStorage.getItem("userId");
-      let result = await getDevMessageBOE({});
+      let result = await userGetUserInfo({});
       if (result.code == 20000) {
         sessionStorage.setItem("zconsole_userInfo", JSON.stringify(result.data));
         sessionStorage.setItem("userName", result.data.userName);
+        
         getMenuAuthList().then((res) => {
           if (res.data && res.data.length) {
             sessionStorage.setItem("menuAuthList", res.data);
@@ -285,7 +227,7 @@ export default {
                 if (url) {
                   this.$router.push(url);
                 } else {
-                  this.$router.push("/overview/preview");
+                  this.$router.push("/systemManagement/dictionary");
                 }
               });
             });
@@ -302,17 +244,21 @@ export default {
 .common-layout {
   .top {
     text-align: center;
+
     .header {
       height: 44px;
       line-height: 44px;
+
       a {
         text-decoration: none;
       }
+
       .logo {
         height: 44px;
         vertical-align: top;
         margin-right: 16px;
       }
+
       .title {
         font-size: 33px;
         color: @title-color;
@@ -322,6 +268,7 @@ export default {
         top: 2px;
       }
     }
+
     .desc {
       font-size: 14px;
       color: @text-color-second;
@@ -329,17 +276,21 @@ export default {
       margin-bottom: 40px;
     }
   }
+
   .login {
     width: 368px;
     margin: 0 auto;
+
     @media screen and (max-width: 576px) {
       width: 95%;
     }
+
     @media screen and (max-width: 320px) {
       .captcha-button {
         font-size: 14px;
       }
     }
+
     .icon {
       font-size: 24px;
       color: @text-color-second;
@@ -358,6 +309,7 @@ export default {
 .ant-row {
   display: block !important;
 }
+
 .ant-page-header-heading {
   justify-content: flex-start !important;
 }

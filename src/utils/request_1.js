@@ -2,12 +2,14 @@
 import axios from 'axios'
 import Base64 from 'base-64';
 import Vue from 'vue';
-import { initRouter } from '@/router'
+import {
+  initRouter
+} from '@/router'
 import store from '@/store'
 var currentRouter = initRouter();
 // 2、创建axios实例
 let boeService = axios.create({
-  baseURL: process.env.VUE_APP_API_BASE_URL_TEST,
+  baseURL: process.env.VUE_APP_API_BASE_URL_XINXIN,
   timeout: 300000
 })
 
@@ -21,7 +23,7 @@ boeService.interceptors.request.use(config => {
     config.headers.routerCode = routerCode;
   }
   // 请求成功处理
-  if (sessionStorage.getItem('token')) {//判断浏览器中的cookie中是否存在项目的token
+  if (sessionStorage.getItem('token')) { //判断浏览器中的cookie中是否存在项目的token
     config.headers.token = sessionStorage.getItem('token')
   }
   let clientId = process.env.VUE_APP_CLIENTID;
@@ -34,7 +36,7 @@ boeService.interceptors.request.use(config => {
   }
   return config;
 }, err => {
-  Promise.reject(err);// 请求错误处理
+  Promise.reject(err); // 请求错误处理
 })
 
 //4、axios的返回拦截--response
@@ -81,15 +83,22 @@ export function get(url, params = {}) {
     boeService({
       url: url,
       method: 'get',
-      params: params
+      params: {
+        ...params,
+      },
     }).then(res => {
+      // if (options.responseType == 'blob') {
+      //   console.log(11111111111111)
+      // }
       if (res.data.code != 20000) {
         // 20020  用于激活优惠券-不需要message提醒
         if (res.data.code != 20017 && res.data.code != 20020) {
           Vue.prototype.$antMessage.warn(res.data.message)
         }
+
         reject(res.data);
       } else {
+
         resolve(res.data);
       }
     }).catch(err => {
@@ -107,7 +116,9 @@ export function get(url, params = {}) {
 }
 
 //6、post请求封装  默认json格式:'Content-Type':'application/json',如果是文件上传，可以修改headers为 headers: { 'Content-Type': 'multipart/form-data' }
-export function post(url, params = {}, headers = { 'Content-Type': 'application/json' }) {
+export function post(url, params = {}, headers = {
+  'Content-Type': 'application/json'
+}) {
   return new Promise((resolve, reject) => {
     boeService({
       url: url,
@@ -136,8 +147,45 @@ export function post(url, params = {}, headers = { 'Content-Type': 'application/
     })
   })
 }
+
+export function getFile(url, params = {}) {
+  return new Promise((resolve, reject) => {
+    boeService({
+      url: url,
+      method: 'get',
+      params: params,
+      responseType: 'blob',
+    }).then(res => {
+      // console.log()
+      // const disposition = res.headers['content-disposition'];
+      // const matchArray = disposition.match(/filename="(.*)"/);
+      // console.log(matchArray,'dispositiondisposition')
+      // const filename = matchArray[1];
+      // console.log(filename,'filenamefilename')
+      let fileName = (res.headers['content-disposition'].split("="))[1]
+      // console.log(fileName, 'fileNamefileName')
+      resolve({
+        name: fileName,
+        data: res.data
+      })
+    }).catch(err => {
+      console.log(err);
+      // 只做状态码为200的报错提示
+      if (err.response.status == 200) {
+        Vue.prototype.$antMessage.warn(err.response.data.msg || err.response.data.message)
+        // 返回回调，方便后续各种操作
+        reject(err);
+      } else if (err.response.status != 200) {
+        reject(err);
+      }
+    })
+  })
+}
+
 //7、post请求封装---下载excel文件流专用
-export function postExcel(url, params = {}, headers = { 'Content-Type': 'application/json' }) {
+export function postExcel(url, params = {}, headers = {
+  'Content-Type': 'application/json'
+}) {
   return new Promise((resolve, reject) => {
     boeService({
       url: url,
@@ -151,7 +199,7 @@ export function postExcel(url, params = {}, headers = { 'Content-Type': 'applica
       try {
         let enc = new TextDecoder('utf-8')
         errData = JSON.parse(enc.decode(new Uint8Array(res.data)))
-      } catch (err) { }
+      } catch (err) {}
       if (errData) {
         Vue.prototype.$antMessage.warn(errData.message);
         reject(errData);
@@ -170,6 +218,7 @@ export const baseUrlUseForImg = boeService.defaults.baseURL
 
 //8、将模块暴露
 export default {
+  getFile,
   get,
   post,
   baseUrlUseForImg

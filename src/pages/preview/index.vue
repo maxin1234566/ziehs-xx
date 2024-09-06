@@ -22,6 +22,7 @@
           <div class="list-detail">
             <div class="list-title">
               <div>公告名称</div>
+               
               <div>创建时间</div>
             </div>
             <ul v-if="noticeList.length > 0">
@@ -40,7 +41,7 @@
             </ul>
           </div>
         </div>
-      </a-col>
+      </a-col>7
     </a-row>
     <a-row :gutter="rowObj.gutter">
       <a-col :span="rowObj.colLeftSpan">

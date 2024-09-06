@@ -1,5 +1,4 @@
 import { get, post, postExcel } from '@/utils/request.js';
-import request from '@/utils/request_1.js';
 import serviceNameList from '@/config/default/service.config.js'
 // export const loginIn = params => post('/login', params);
 // export const getRoutesConfig = params => get('/routes', params);

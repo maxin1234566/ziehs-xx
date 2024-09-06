@@ -25,7 +25,7 @@
           <a-button type="primary" :loading="loading" @click="iSearch">查询</a-button>
           <a-button @click="iRest">重置</a-button>
         </a-form-model-item>
-      </a-form-model>
+      </a-form-model> 
     </SearchTerm>
     <DashBtn>
       <div>
